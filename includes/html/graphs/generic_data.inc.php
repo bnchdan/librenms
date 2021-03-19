@@ -16,7 +16,7 @@
 use LibreNMS\Config;
 
 require 'includes/html/graphs/common.inc.php';
-
+require 'config.php';
 $stacked = generate_stacked_graphs();
 
 if ($rrd_filename) {
@@ -136,17 +136,33 @@ if ($format == 'octets' || $format == 'bytes') {
 
 $rrd_options .= " COMMENT:'bps      Now       Ave      Max      " . Config::get('percentile_value') . "th %\\n'";
 
-$rrd_options .= ' AREA:in' . $format . '_max#D7FFC7' . $stacked['transparency'] . ':';
-$rrd_options .= ' AREA:in' . $format . '#90B040' . $stacked['transparency'] . ':';
-$rrd_options .= ' LINE:in' . $format . "#608720:'In '";
+
+
+if ($my_template){
+    $rrd_options .= ' AREA:in' . $format . '_max#'.$colour_area_in_max . $stacked['transparency'] . ':';
+    $rrd_options .= ' AREA:in' . $format . '#'.$colour_area_in . $stacked['transparency'] . ':';
+    $rrd_options .= ' LINE:in' . $format . "#".$colour_line_in.":'In '";
+}else{
+    $rrd_options .= ' AREA:in' . $format . '_max#D7FFC7' . $stacked['transparency'] . ':';
+    $rrd_options .= ' AREA:in' . $format . '#90B040' . $stacked['transparency'] . ':';
+    $rrd_options .= ' LINE:in' . $format . "#608720:'In '";
+}
+
 $rrd_options .= ' GPRINT:in' . $format . ':LAST:%6.' . $float_precision . 'lf%s';
 $rrd_options .= ' GPRINT:in' . $format . ':AVERAGE:%6.' . $float_precision . 'lf%s';
 $rrd_options .= ' GPRINT:in' . $format . '_max:MAX:%6.' . $float_precision . 'lf%s';
 $rrd_options .= ' GPRINT:percentile_in:%6.' . $float_precision . 'lf%s\\n';
 
-$rrd_options .= ' AREA:dout' . $format . '_max#E0E0FF' . $stacked['transparency'] . ':';
-$rrd_options .= ' AREA:dout' . $format . '#8080C0' . $stacked['transparency'] . ':';
-$rrd_options .= ' LINE:dout' . $format . "#606090:'Out'";
+if($my_template){
+    $rrd_options .= ' LINE:dout' . $format . "#".$colour_line_out.":'Out'";
+    if (!$stacked['transparency'])
+        $rrd_options .= ' AREA:dout#' . $colour_area_out . $stacked['transparency'] . ':';
+}else{
+        $rrd_options .= ' AREA:dout' . $format . '_max#E0E0FF' . $stacked['transparency'] . ':';
+        $rrd_options .= ' AREA:dout' . $format . '#8080C0' . $stacked['transparency'] . ':';
+        $rrd_options .= ' LINE:dout' . $format . "#606090:'Out'";
+}
+
 $rrd_options .= ' GPRINT:out' . $format . ':LAST:%6.' . $float_precision . 'lf%s';
 $rrd_options .= ' GPRINT:out' . $format . ':AVERAGE:%6.' . $float_precision . 'lf%s';
 $rrd_options .= ' GPRINT:out' . $format . '_max:MAX:%6.' . $float_precision . 'lf%s';

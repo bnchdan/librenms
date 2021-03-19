@@ -14,7 +14,7 @@
 */
 
 require 'includes/html/graphs/common.inc.php';
-
+require 'config.php';
 $stacked = generate_stacked_graphs();
 
 $length = '10';
@@ -56,7 +56,7 @@ if ($percentile) {
 
 if ($graph_max) {
     $rrd_options .= ' AREA:in_max#' . $colour_area_in_max . $stacked['transparency'] . ':';
-    $rrd_options .= ' AREA:dout_max#' . $colour_area_out_max . $stacked['transparency'] . ':';
+    // $rrd_options .= ' AREA:dout_max#' . $colour_area_out_max . $stacked['transparency'] . ':';
 }
 
 if ($_GET['previous'] == 'yes') {
@@ -108,7 +108,10 @@ if ($percentile) {
 }
 
 $rrd_options .= ' COMMENT:\\n';
-$rrd_options .= ' AREA:dout#' . $colour_area_out . $stacked['transparency'] . ':';
+
+if (!$stacked['transparency'] or !$my_template)
+    $rrd_options .= ' AREA:dout#' . $colour_area_out . $stacked['transparency'] . ':';
+
 $rrd_options .= ' LINE1.25:dout#' . $colour_line_out . ":'" . $out_text . "'";
 $rrd_options .= ' GPRINT:out:LAST:%6.' . $float_precision . 'lf%s';
 $rrd_options .= ' GPRINT:out:AVERAGE:%6.' . $float_precision . 'lf%s';
